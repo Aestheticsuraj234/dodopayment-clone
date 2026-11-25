@@ -4,3 +4,7 @@ server:
 spring:
   application:
     name: identity-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/identity
+    username: payforge
+    password: payforge
