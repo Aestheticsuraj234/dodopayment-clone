@@ -3,6 +3,7 @@ package dev.payforge.identity.merchant;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +16,9 @@ public class MerchantRepository {
         this.jdbc = jdbc;
     }
 
-    public Merchant create(String name, String email) {
-        String id = "mer_" + UUID.randomUUID().toString().replace("-", "");
+ public Merchant create(String name, String email) {
+    String id = "mer_" + UUID.randomUUID().toString().replace("-", "");
+    try {
         return jdbc.sql("""
                 INSERT INTO merchants (id, name, email)
                 VALUES (:id, :name, :email)
@@ -27,7 +29,10 @@ public class MerchantRepository {
                 .param("email", email)
                 .query(Merchant.class)
                 .single();
+    } catch (DuplicateKeyException e) {
+        throw new MerchantEmailTakenException(email);
     }
+}
 
     public Optional<Merchant> findById(String id) {
         return jdbc.sql("""

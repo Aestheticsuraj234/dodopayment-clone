@@ -9,11 +9,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 @RestController
 @RequestMapping("/v1/merchants")
 public class MerchantController {
 
-    record CreateMerchantRequest(String name, String email) {}
+   record CreateMerchantRequest(
+        @NotBlank @Size(max = 100) String name,
+        @NotBlank @Email @Size(max = 254) String email) {}
 
     private final MerchantRepository merchants;
 
@@ -22,7 +29,7 @@ public class MerchantController {
     }
 
     @PostMapping
-    ResponseEntity<Merchant> create(@RequestBody CreateMerchantRequest request) {
+   ResponseEntity<Merchant> create(@Valid @RequestBody CreateMerchantRequest request)  {
         Merchant merchant = merchants.create(request.name(), request.email());
         return ResponseEntity.status(HttpStatus.CREATED).body(merchant);
     }
